@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using TodoApi.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -11,6 +14,10 @@ builder.Services.AddCors(options =>
                    .AllowAnyHeader();
         });
 });
+
+// 添加數據庫服務
+builder.Services.AddDbContext<TodoDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
