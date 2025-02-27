@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace TodoApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class TodoController : ControllerBase
 {
     private readonly TodoDbContext _context;
