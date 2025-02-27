@@ -37,10 +37,6 @@ try
 
     var app = builder.Build();
 
-    // 加入測試日誌
-    logger.Debug("應用程式正在啟動");
-    logger.Info("這是一個測試日誌訊息");
-
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
     {
