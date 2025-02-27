@@ -38,7 +38,7 @@ public class TodoController : ControllerBase
             return NotFound();
         }
 
-        _logger.LogInformation("成功找到 ID 為 {Id} 的待辦事項：{Title}", id, todo.Title);
+        _logger.LogInformation("成功找到 ID 為 {Id} 的待辦事項：{Context}", id, todo.Context);
         return todo;
     }
 
@@ -49,7 +49,7 @@ public class TodoController : ControllerBase
         _context.Todos.Add(todo);
         await _context.SaveChangesAsync();
 
-        _logger.LogInformation("已創建新的待辦事項：ID = {Id}, 標題 = {Title}", todo.Id, todo.Title);
+        _logger.LogInformation("已創建新的待辦事項：ID = {Id}, 內容 = {Context}", todo.Id, todo.Context);
         return CreatedAtAction(nameof(GetById), new { id = todo.Id }, todo);
     }
 
@@ -65,14 +65,14 @@ public class TodoController : ControllerBase
             return NotFound();
         }
 
-        existingTodo.Title = todo.Title;
+        existingTodo.Context = todo.Context;
         existingTodo.IsComplete = todo.IsComplete;
         existingTodo.UpdatedAt = DateTime.Now;
 
         await _context.SaveChangesAsync();
         
-        _logger.LogInformation("已更新待辦事項：ID = {Id}, 新標題 = {Title}, 完成狀態 = {IsComplete}", 
-            id, todo.Title, todo.IsComplete);
+        _logger.LogInformation("已更新待辦事項：ID = {Id}, 新內容 = {Context}, 完成狀態 = {IsComplete}", 
+            id, todo.Context, todo.IsComplete);
 
         return NoContent();
     }
@@ -92,7 +92,7 @@ public class TodoController : ControllerBase
         _context.Todos.Remove(todo);
         await _context.SaveChangesAsync();
         
-        _logger.LogInformation("已刪除待辦事項：ID = {Id}, 標題 = {Title}", id, todo.Title);
+        _logger.LogInformation("已刪除待辦事項：ID = {Id}, 內容 = {Context}", id, todo.Context);
         return NoContent();
     }
 } 

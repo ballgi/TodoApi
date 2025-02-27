@@ -8,7 +8,7 @@ public class Todo
     
     [Required]
     [MaxLength(100)]
-    public string Title { get; set; } = string.Empty;
+    public string Context { get; set; } = string.Empty;
     
     public bool IsComplete { get; set; }
     
