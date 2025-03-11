@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Data;
+using TodoApi.Interfaces;
+using TodoApi.Repositories;
+using TodoApi.Services;
 using NLog;
 using NLog.Web;
 
@@ -25,6 +28,10 @@ try
     // 添加數據庫服務
     builder.Services.AddDbContext<TodoDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+    // 注冊存儲庫和服務
+    builder.Services.AddScoped<ITodoRepository, TodoRepository>();
+    builder.Services.AddScoped<ITodoService, TodoService>();
 
     builder.Services.AddControllers();
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

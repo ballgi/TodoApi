@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TodoApi.Data;
-using TodoApi.Models;
 using Microsoft.Extensions.Logging;
+using TodoApi.Interfaces;
+using TodoApi.Models;
 
 namespace TodoApi.Controllers;
 
@@ -10,89 +9,64 @@ namespace TodoApi.Controllers;
 [Route("[controller]")]
 public class TodoController : ControllerBase
 {
-    private readonly TodoDbContext _context;
+    private readonly ITodoService _todoService;
     private readonly ILogger<TodoController> _logger;
 
-    public TodoController(TodoDbContext context, ILogger<TodoController> logger)
+    public TodoController(ITodoService todoService, ILogger<TodoController> logger)
     {
-        _context = context;
+        _todoService = todoService;
         _logger = logger;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Todo>>> GetAll()
     {
-        _logger.LogInformation("正在獲取所有待辦事項");
-        return await _context.Todos.ToListAsync();
+        return Ok(await _todoService.GetAllTodosAsync());
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Todo>> GetById(int id)
     {
-        _logger.LogInformation("正在查詢 ID 為 {Id} 的待辦事項", id);
-        var todo = await _context.Todos.FindAsync(id);
+        var todo = await _todoService.GetTodoByIdAsync(id);
 
         if (todo == null)
         {
-            _logger.LogWarning("找不到 ID 為 {Id} 的待辦事項", id);
             return NotFound();
         }
 
-        _logger.LogInformation("成功找到 ID 為 {Id} 的待辦事項：{Context}", id, todo.Context);
         return todo;
     }
 
     [HttpPost]
     public async Task<ActionResult<Todo>> Create(Todo todo)
     {
-        todo.CreatedAt = DateTime.Now;
-        _context.Todos.Add(todo);
-        await _context.SaveChangesAsync();
-
-        _logger.LogInformation("已創建新的待辦事項：ID = {Id}, 內容 = {Context}", todo.Id, todo.Context);
-        return CreatedAtAction(nameof(GetById), new { id = todo.Id }, todo);
+        var createdTodo = await _todoService.CreateTodoAsync(todo);
+        return CreatedAtAction(nameof(GetById), new { id = createdTodo.Id }, createdTodo);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, Todo todo)
     {
-        _logger.LogInformation("正在更新 ID 為 {Id} 的待辦事項", id);
-        
-        var existingTodo = await _context.Todos.FindAsync(id);
-        if (existingTodo == null)
+        try
         {
-            _logger.LogWarning("找不到要更新的待辦事項，ID = {Id}", id);
+            await _todoService.UpdateTodoAsync(id, todo);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
             return NotFound();
         }
-
-        existingTodo.Context = todo.Context;
-        existingTodo.IsComplete = todo.IsComplete;
-        existingTodo.UpdatedAt = DateTime.Now;
-
-        await _context.SaveChangesAsync();
-        
-        _logger.LogInformation("已更新待辦事項：ID = {Id}, 新內容 = {Context}, 完成狀態 = {IsComplete}", 
-            id, todo.Context, todo.IsComplete);
-
-        return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        _logger.LogInformation("正在刪除 ID 為 {Id} 的待辦事項", id);
-        
-        var todo = await _context.Todos.FindAsync(id);
-        if (todo == null)
+        var result = await _todoService.DeleteTodoAsync(id);
+        if (!result)
         {
-            _logger.LogWarning("找不到要刪除的待辦事項，ID = {Id}", id);
             return NotFound();
         }
-
-        _context.Todos.Remove(todo);
-        await _context.SaveChangesAsync();
         
-        _logger.LogInformation("已刪除待辦事項：ID = {Id}, 內容 = {Context}", id, todo.Context);
         return NoContent();
     }
 } 
