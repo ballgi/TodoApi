@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  todoapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: todoapi
+    ports:
+      - "5000:80"
+      - "5001:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=mssql;Database=TodoDb;User Id=sa;Password=sql#DSC!;trustServerCertificate=true
+    depends_on:
+      - mssql
+    networks:
+      - todo-network
+    restart: unless-stopped
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: todoapi-mssql
+    environment:
+      - SA_PASSWORD=sql#DSC!
+      - ACCEPT_EULA=Y
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    networks:
+      - todo-network
+    restart: unless-stopped
+
+volumes:
+  mssql-data:
+
+networks:
+  todo-network:
+    driver: bridge
