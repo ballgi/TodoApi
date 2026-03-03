@@ -1,8 +1,10 @@
 {
     "github.copilot.chat.commitMessageGeneration.instructions": [
+        
 
         {
             "file": "ConventionalCommits.md"
         }
-    ]
+    ],
+    "markdown.validate.enabled": true
 }
